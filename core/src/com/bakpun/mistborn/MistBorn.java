@@ -31,7 +31,7 @@ public class MistBorn extends Game {
 	
 	public void dispose () {
 		Render.batch.dispose();		//SpriteBatch.
-		Render.audio.dispose();
+		//Render.audio.dispose();
 		super.dispose();
 	}
 }

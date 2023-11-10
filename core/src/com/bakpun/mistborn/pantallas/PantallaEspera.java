@@ -52,8 +52,10 @@ public class PantallaEspera implements Screen {
 		
 		if(HiloServidor.clientesEncontrados){espera.setText("Eleccion de Personajes");}	//Informacion para saber en que fase estan los clientes.
 		else {espera.setText("Buscando Jugadores...");}
-		cantidadJug.setText(HiloServidor.cantConexiones);
 		
+		if(HiloServidor.clientesListos){espera.setText("Peleando");}
+	
+		cantidadJug.setText(HiloServidor.cantConexiones);
 		
 		stage.act();
 		stage.draw();

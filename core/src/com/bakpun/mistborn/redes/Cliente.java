@@ -6,6 +6,7 @@ public class Cliente {	//Clase para almacenar los datos de los clientes que se c
 	
 	private InetAddress ipCliente;
 	private int puerto;
+	private boolean listo = false;
 	
 	public Cliente(InetAddress ip, int puerto) {
 		this.ipCliente = ip;
@@ -20,5 +21,11 @@ public class Cliente {	//Clase para almacenar los datos de los clientes que se c
 		return puerto;
 	}
 	
+	public boolean getListo() {
+		return listo;
+	}
 	
+	public void setListo(boolean listo) {
+		this.listo = listo;
+	}
 }
