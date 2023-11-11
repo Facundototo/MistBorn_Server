@@ -20,7 +20,7 @@ public class MistBorn extends Game {
 		Render.batch = new SpriteBatch();	//SpriteBatch unico.
 		//Render.audio.cancionMenu.play();
 		//Render.audio.cancionMenu.setLooping(true);
-		Gdx.graphics.setWindowedMode(Config.ANCHO,Config.ALTO);
+		Gdx.graphics.setWindowedMode(Config.ANCHO/3,Config.ALTO/2);
 		this.setScreen(new PantallaEspera());
 		
 	}
@@ -30,6 +30,7 @@ public class MistBorn extends Game {
 	}
 	
 	public void dispose () {
+		hs.desconectar();
 		Render.batch.dispose();		//SpriteBatch.
 		//Render.audio.dispose();
 		super.dispose();

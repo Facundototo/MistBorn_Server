@@ -70,18 +70,7 @@ public class HiloServidor extends Thread{
 			break;
 				
 		case "desconectar":		//Este case esta adaptado tanto para la desconexion de PantallaEspera como para la de PantallaSeleccion.
-			if(cantConexiones == 1) {	//Caso de PantallaEspera, si la cantConexion es 1 se desconecta solo el cliente[0], ya que cliente[1] no existe porque todavia no lo encontro.
-				enviarMensaje("desconexion", clientes[0].getIpCliente(), clientes[0].getPuerto());
-				clientes[0] = null;
-			}else if (cantConexiones == 2){	//Caso PantallaSeleccion, estan los 2 conectados, si uno se desconecta, el otro tambien porque no tiene oponente,tiene que buscar de nuevo.
-				enviarMensaje("desconexion", clientes[0].getIpCliente(), clientes[0].getPuerto());
-				enviarMensaje("desconexion", clientes[1].getIpCliente(), clientes[1].getPuerto());
-				clientes[0] = null;		
-				clientes[1] = null;
-			}
-			clientesEncontrados = false;	//Para los 2 casos es false.
-			clientesListos = false;
-			cantConexiones = 0;				//Para los 2 casos es igual a 0.
+			desconectar();
 			break;
 			
 		case "listo":
@@ -102,6 +91,23 @@ public class HiloServidor extends Thread{
 			enviarMensaje("seleccionOponente#" + msg[2], clientes[clienteId].getIpCliente(), clientes[clienteId].getPuerto());
 			break;
 		}
+	}
+
+
+	public void desconectar() {
+		if(cantConexiones == 1) {	//Caso de PantallaEspera, si la cantConexion es 1 se desconecta solo el cliente[0], ya que cliente[1] no existe porque todavia no lo encontro.
+			enviarMensaje("desconexion", clientes[0].getIpCliente(), clientes[0].getPuerto());
+			clientes[0] = null;
+		}else if (cantConexiones == 2){	//Caso PantallaSeleccion, estan los 2 conectados, si uno se desconecta, el otro tambien porque no tiene oponente,tiene que buscar de nuevo.
+			enviarMensaje("desconexion", clientes[0].getIpCliente(), clientes[0].getPuerto());
+			enviarMensaje("desconexion", clientes[1].getIpCliente(), clientes[1].getPuerto());
+			clientes[0] = null;		
+			clientes[1] = null;
+		}
+		clientesEncontrados = false;	//Para los 2 casos es false.
+		clientesListos = false;
+		cantConexiones = 0;				//Para los 2 casos es igual a 0.
+		
 	}
 	
 }
