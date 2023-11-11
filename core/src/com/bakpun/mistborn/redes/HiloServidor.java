@@ -6,13 +6,15 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
+import com.bakpun.mistborn.enums.InfoPersonaje;
+
 
 public class HiloServidor extends Thread{
 	private DatagramSocket socket;
 	public boolean fin = false;
 	private int puerto = 7654;
 	public static int cantConexiones = 0;
-	private Cliente clientes[] = new Cliente[2];
+	public static Cliente clientes[] = new Cliente[2];
 	public static boolean clientesEncontrados = false, clientesListos = false;
 	
 	public HiloServidor() {
@@ -87,8 +89,10 @@ public class HiloServidor extends Thread{
 			break;	
 			
 		case "seleccion":	//Este case es para informar al otro cliente, de la seleccion que esta poniendo su oponente.
-			int clienteId = ((Integer.valueOf(msg[1]) == 0)?1:0);
-			enviarMensaje("seleccionOponente#" + msg[2], clientes[clienteId].getIpCliente(), clientes[clienteId].getPuerto());
+			// Almaceno la seleccion de cada cliente para despues crear la pantallaPvP.
+			clientes[Integer.valueOf(msg[1])].setNombrePj(InfoPersonaje.values()[Integer.valueOf(msg[2])].getNombre()); 
+			int oponenteId = ((Integer.valueOf(msg[1]) == 0)?1:0);
+			enviarMensaje("seleccionOponente#" + msg[2], clientes[oponenteId].getIpCliente(), clientes[oponenteId].getPuerto());
 			break;
 		}
 	}
