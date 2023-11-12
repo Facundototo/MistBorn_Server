@@ -1,7 +1,6 @@
 package com.bakpun.mistborn.pantallas;
 
 import java.lang.reflect.Constructor;
-
 import java.lang.reflect.InvocationTargetException;
 
 import com.badlogic.gdx.Gdx;
@@ -17,11 +16,13 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.bakpun.mistborn.box2d.Box2dConfig;
 import com.bakpun.mistborn.box2d.Colision;
 import com.bakpun.mistborn.elementos.Imagen;
+import com.bakpun.mistborn.enums.Spawn;
 import com.bakpun.mistborn.hud.Hud;
 import com.bakpun.mistborn.io.Entradas;
 import com.bakpun.mistborn.objetos.CuerposMundo;
 import com.bakpun.mistborn.objetos.GestorMonedas;
 import com.bakpun.mistborn.personajes.Personaje;
+import com.bakpun.mistborn.redes.HiloServidor;
 import com.bakpun.mistborn.utiles.Config;
 import com.bakpun.mistborn.utiles.Recursos;
 import com.bakpun.mistborn.utiles.Render;
@@ -41,14 +42,13 @@ public final class PantallaPvP implements Screen{
 	private String nombrePj1, nombrePj2;
 	private Pixmap cursor;
 	private CuerposMundo entidades;
-	private int nroOponente;
+
 	
-	public PantallaPvP(String clasePj1, String clasePj2,int nroOponente) {
+	public PantallaPvP(String clasePj1, String clasePj2) {
 		//Render.audio.cancionBatalla.play();
 		//Render.audio.cancionBatalla.setLooping(true);
 		this.nombrePj1 = clasePj1;  //Pasa el nombre de la clase del Personaje que eligio y lo creo con reflection.
 		this.nombrePj2 = clasePj2;	
-		this.nroOponente = nroOponente;
 	}
 	
 	public void show() {
@@ -62,8 +62,8 @@ public final class PantallaPvP implements Screen{
 		vw = new FillViewport(Config.ANCHO/Box2dConfig.PPM,Config.ALTO/Box2dConfig.PPM,cam);
 		db = new Box2DDebugRenderer();
 		hud = new Hud();
-		pj1 = crearPersonaje(this.nombrePj1,entradasPj1,false,false);//Si el cliente es el pj1 el oponente es el pj2
-		pj2 = crearPersonaje(this.nombrePj2,entradasPj2,true,true);	//Si el cliente es el pj2 el oponente es el pj1.
+		pj1 = crearPersonaje(this.nombrePj1,entradasPj1,Spawn.IZQUIERDA,0);//Si el cliente es el pj1 el oponente es el pj2
+		pj2 = crearPersonaje(this.nombrePj2,entradasPj2,Spawn.DERECHA,1);	//Si el cliente es el pj2 el oponente es el pj1.
 		
 		GestorMonedas.mundo = mundo;
 		GestorMonedas.c = colisionMundo;
@@ -80,9 +80,13 @@ public final class PantallaPvP implements Screen{
 		Render.limpiarPantalla(0,0,0);
 		cam.update();	
 		
+		if(!HiloServidor.clientesEncontrados) {
+			Render.app.setScreen(new PantallaEspera());
+		}
+		
 		Render.batch.setProjectionMatrix(cam.combined);
 		Render.batch.begin();
-		
+
 		fondo.draw();	//Dibujo el fondo.
 		pj1.draw(delta); 	//Updateo al jugador.
 		pj2.draw(delta);		//Updateo al jugador2.
@@ -142,14 +146,14 @@ public final class PantallaPvP implements Screen{
 		mundo.setContactListener(colisionMundo); 
 	}
 
-	private Personaje crearPersonaje(String clasePj,Entradas entrada ,boolean ladoDerecho,boolean oponente) {	//Metodo para la creacion del pj, utilizando Reflection.
+	private Personaje crearPersonaje(String clasePj,Entradas entrada ,Spawn spawn, int id) {	//Metodo para la creacion del pj, utilizando Reflection.
 		Personaje pj = null;
 	    try {
 	    	//<?> no sabemos que significa pero si lo sacamos nos sale el mark amarillo.
 	        Class<?> clase = Class.forName("com.bakpun.mistborn.personajes." + clasePj);
 	        //boolean.class lo ponemos porque el booleano no tiene .getClass(), es lo mismo.
-	        Constructor<?> constructor = clase.getConstructor(mundo.getClass(), entradasPj1.getClass(), colisionMundo.getClass(), cam.getClass(), boolean.class, boolean.class);
-	        pj = (Personaje) constructor.newInstance(mundo, entrada, colisionMundo, cam, ladoDerecho, oponente);
+	        Constructor<?> constructor = clase.getConstructor(mundo.getClass(), entradasPj1.getClass(), colisionMundo.getClass(), cam.getClass(),Spawn.class, int.class);
+	        pj = (Personaje) constructor.newInstance(mundo, entrada, colisionMundo, cam, spawn,id);
 	    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
 	        e.printStackTrace();
 	    }

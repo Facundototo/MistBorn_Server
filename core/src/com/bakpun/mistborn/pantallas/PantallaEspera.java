@@ -54,7 +54,7 @@ public class PantallaEspera implements Screen {
 		else {espera.setText("Buscando Jugadores...");}
 		
 		if(HiloServidor.clientesListos){
-			Render.app.setScreen(new PantallaPvP(HiloServidor.clientes[0].getNombrePj(), HiloServidor.clientes[1].getNombrePj(),2));
+			Render.app.setScreen(new PantallaPvP(HiloServidor.clientes[0].getNombrePj(), HiloServidor.clientes[1].getNombrePj()));
 		}
 	
 		cantidadJug.setText(HiloServidor.cantConexiones);
