@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 
 import com.bakpun.mistborn.enums.InfoPersonaje;
+import com.bakpun.mistborn.enums.Movimiento;
+import com.bakpun.mistborn.eventos.Listeners;
 
 
 public class HiloServidor extends Thread{
@@ -56,7 +58,7 @@ public class HiloServidor extends Thread{
 
 	private void procesarMensaje(DatagramPacket dp) {
 		String msg[] = new String(dp.getData()).trim().split("#");	//Transformo el dato del paquete a String y se quitan los espacios con trim().
-		System.out.println(msg[0]);	
+		//System.out.println(msg[0]);	
 		
 		switch(msg[0]) { 
 		case "conexion":
@@ -93,6 +95,21 @@ public class HiloServidor extends Thread{
 			clientes[Integer.valueOf(msg[1])].setNombrePj(InfoPersonaje.values()[Integer.valueOf(msg[2])].getNombre()); 
 			int oponenteId = ((Integer.valueOf(msg[1]) == 0)?1:0);
 			enviarMensaje("seleccionOponente#" + msg[2], clientes[oponenteId].getIpCliente(), clientes[oponenteId].getPuerto());
+			break;
+			
+		case "movimiento":
+			//System.out.println(msg[1]);
+			boolean encontrado = false;
+			int i = 0;
+			Movimiento mov = Movimiento.QUIETO;
+			do {
+				if(msg[1].equals(Movimiento.values()[i].getMovimiento())) {
+					mov = Movimiento.values()[i];
+					encontrado = true;
+				}
+				i++;
+			}while(!encontrado);
+			Listeners.mover(mov, Integer.valueOf(msg[2]));
 			break;
 		}
 	}

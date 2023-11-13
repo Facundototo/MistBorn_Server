@@ -15,6 +15,7 @@ import com.bakpun.mistborn.box2d.ColisionMouse;
 import com.bakpun.mistborn.box2d.Fisica;
 import com.bakpun.mistborn.elementos.Animacion;
 import com.bakpun.mistborn.elementos.Imagen;
+import com.bakpun.mistborn.enums.Movimiento;
 import com.bakpun.mistborn.enums.OpcionAcero;
 import com.bakpun.mistborn.enums.Spawn;
 import com.bakpun.mistborn.enums.TipoAudio;
@@ -22,6 +23,7 @@ import com.bakpun.mistborn.enums.TipoPersonaje;
 import com.bakpun.mistborn.enums.TipoPoder;
 import com.bakpun.mistborn.enums.UserData;
 import com.bakpun.mistborn.eventos.EventoGestionMonedas;
+import com.bakpun.mistborn.eventos.EventoMoverPj;
 import com.bakpun.mistborn.eventos.EventoReducirVida;
 import com.bakpun.mistborn.eventos.Listeners;
 import com.bakpun.mistborn.io.Entradas;
@@ -30,7 +32,7 @@ import com.bakpun.mistborn.poderes.Peltre;
 import com.bakpun.mistborn.poderes.Poder;
 import com.bakpun.mistborn.utiles.Render;
 
-public abstract class Personaje implements EventoReducirVida,EventoGestionMonedas{
+public abstract class Personaje implements EventoReducirVida,EventoGestionMonedas,EventoMoverPj{
 	
 	private float velocidadX = 15f, impulsoY = 20f;
 	
@@ -51,6 +53,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	private int monedas;
 	private TipoPersonaje tipoPj;
 	private Spawn spawn;
+	private Movimiento mov = Movimiento.QUIETO;
 	
 	private boolean saltar,puedeMoverse,estaCorriendo,estaQuieto,apuntando,disparando,primerSalto,segundoSalto,caidaSalto,correrDerecha,correrIzquierda;
 	private boolean reproducirSonidoCorrer;
@@ -229,23 +232,22 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		
 	}
 	private void calcularSalto() {
-		if(saltar) {
+		if(mov == Movimiento.SALTO) {
 			movimiento.y = impulsoY;
 		}else {
 			movimiento.y = pj.getLinearVelocity().y;	//Esto hace que actue junto a la gravedad del mundo.
 		}
 	}
 	private void calcularMovimiento() {
-		if(puedeMoverse) {
-			if(correrDerecha) {
+		//if(puedeMoverse) {
+			if(mov == Movimiento.DERECHA) {
 				movimiento.x = velocidadX;
-			} else if (correrIzquierda){
+			} else if (mov == Movimiento.IZQUIERDA){
 				movimiento.x = -velocidadX;
+			}else {//if(mov == Movimiento.QUIETO){//Esto para que no se quede deslizando.
+				movimiento.x = 0;
 			}
-		}
-		if(estaQuieto) {	//Esto para que no se quede deslizando.
-			movimiento.x = 0;
-		}
+			
 	}
 	public float getX() {
 		return this.pj.getPosition().x;
@@ -284,6 +286,13 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	@Override
 	public void aumentarMonedas() {
 		this.monedas++;
+	}
+	
+	public void mover(Movimiento movimiento, int id) {
+		if(this.id == id) {
+			System.out.println(this.id + " " + movimiento);
+			this.mov = movimiento;
+		}
 	}
 	
 	public int getCantMonedas() {
