@@ -98,18 +98,17 @@ public class HiloServidor extends Thread{
 			break;
 			
 		case "movimiento":
-			//System.out.println(msg[1]);
 			boolean encontrado = false;
 			int i = 0;
-			Movimiento mov = Movimiento.QUIETO;
-			do {
+			Movimiento mov = Movimiento.QUIETO;		
+			do {		//Buscamos el msg y lo guardamos en el enum para hacer mas faciles las comparaciones despues.
 				if(msg[1].equals(Movimiento.values()[i].getMovimiento())) {
 					mov = Movimiento.values()[i];
 					encontrado = true;
 				}
 				i++;
 			}while(!encontrado);
-			Listeners.mover(mov, Integer.valueOf(msg[2]));
+			Listeners.mover(mov, Integer.valueOf(msg[2]));	//LLamamos al evento que va hacia los pj.
 			break;
 		}
 	}

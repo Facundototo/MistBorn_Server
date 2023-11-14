@@ -164,7 +164,6 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		//RECORDATORIO: Esto de ladoDerecho y de cambiarle las teclas es para probar las colisiones sin utilizar redes.	
 		correrDerecha = (entradas.isIrDerD());
 		correrIzquierda = (entradas.isIrIzqA());
-		saltar = ((Gdx.input.isKeyJustPressed(Keys.SPACE)) && this.c.isPuedeSaltar(pj));
 		puedeMoverse = (correrDerecha != correrIzquierda);	//Si el jugador toca las 2 teclas a la vez no va a poder moverse.
 		estaQuieto = ((!correrDerecha == !correrIzquierda) || !puedeMoverse && this.c.isPuedeSaltar(pj));
 		estaCorriendo = ((correrDerecha || correrIzquierda) && puedeMoverse && this.c.isPuedeSaltar(pj));
@@ -187,9 +186,6 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 				Render.audio.pjCorriendo.stop();
 				reproducirSonidoCorrer = false;
 			}
-		}
-		if(saltar) {
-			Render.audio.pjSalto.play(Render.audio.getVolumen(TipoAudio.SONIDO));
 		}
 	}
 
@@ -232,22 +228,21 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		
 	}
 	private void calcularSalto() {
-		if(mov == Movimiento.SALTO) {
+		if(saltar) {	//Si poniamos mov == Movimiento.Salto no nos andaba del todo bien porque se superponia rapidamente con el QUIETO ahora funciona.
 			movimiento.y = impulsoY;
+			saltar = false;
 		}else {
 			movimiento.y = pj.getLinearVelocity().y;	//Esto hace que actue junto a la gravedad del mundo.
 		}
 	}
 	private void calcularMovimiento() {
-		//if(puedeMoverse) {
-			if(mov == Movimiento.DERECHA) {
-				movimiento.x = velocidadX;
-			} else if (mov == Movimiento.IZQUIERDA){
-				movimiento.x = -velocidadX;
-			}else {//if(mov == Movimiento.QUIETO){//Esto para que no se quede deslizando.
-				movimiento.x = 0;
-			}
-			
+		if(mov == Movimiento.DERECHA) {
+			movimiento.x = velocidadX;
+		} else if (mov == Movimiento.IZQUIERDA){
+			movimiento.x = -velocidadX;
+		}else if(mov == Movimiento.QUIETO){//Esto para que no se quede deslizando.
+			movimiento.x = 0;
+		}		
 	}
 	public float getX() {
 		return this.pj.getPosition().x;
@@ -289,9 +284,12 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	}
 	
 	public void mover(Movimiento movimiento, int id) {
-		if(this.id == id) {
-			System.out.println(this.id + " " + movimiento);
-			this.mov = movimiento;
+		if(this.id == id) {		//Se chequea el id del pj.
+			if((movimiento == Movimiento.SALTO) && (c.isPuedeSaltar(pj))) {	//Si es Salto y esta en el piso se activa la flag saltar.
+				saltar = true;
+			}else {
+				this.mov = movimiento;
+			}
 		}
 	}
 	
