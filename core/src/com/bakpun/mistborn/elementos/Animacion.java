@@ -43,4 +43,7 @@ public class Animacion {
 		return animacion.getKeyFrame(tiempo);	//En base a x tiempo te devuelve que frame tendria que ir ahora. 
 	}
 
+	public int getCurrentFrameIndex() {
+		return animacion.getKeyFrameIndex(tiempo);	//En base a x tiempo te devuelve que frame tendria que ir ahora. 
+	}
 }

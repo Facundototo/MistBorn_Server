@@ -5,13 +5,16 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.EventListener;
 
+import com.badlogic.gdx.math.Vector2;
 import com.bakpun.mistborn.enums.InfoPersonaje;
 import com.bakpun.mistborn.enums.Movimiento;
+import com.bakpun.mistborn.eventos.EventoInformacionPj;
 import com.bakpun.mistborn.eventos.Listeners;
 
 
-public class HiloServidor extends Thread{
+public class HiloServidor extends Thread implements EventoInformacionPj, EventListener{
 	private DatagramSocket socket;
 	public boolean fin = false;
 	private int puerto = 7654;
@@ -25,6 +28,7 @@ public class HiloServidor extends Thread{
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
+		Listeners.agregarListener(this);
 	}
 	
 	
@@ -128,6 +132,22 @@ public class HiloServidor extends Thread{
 		clientesListos = false;
 		cantConexiones = 0;				//Para los 2 casos es igual a 0.
 		
+	}
+
+
+	@Override
+	public void actualizarPosClientes(int id, Vector2 coor) {
+		String msg = "posPj#" + String.valueOf(id) + "#" + String.valueOf(coor.x) + "#" + String.valueOf(coor.y);
+		enviarMensaje(msg, clientes[0].getIpCliente(), clientes[0].getPuerto());
+		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());	
+	}
+
+
+	@Override
+	public void actualizarAnimaClientes(int id, int frameIndex,Movimiento mov,boolean saltando) {
+		String msg = "animaPj#" + String.valueOf(id) + "#" + String.valueOf(frameIndex) + "#" + mov.getMovimiento() + "#" + String.valueOf(saltando);
+		enviarMensaje(msg, clientes[0].getIpCliente(), clientes[0].getPuerto());
+		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());
 	}
 	
 }

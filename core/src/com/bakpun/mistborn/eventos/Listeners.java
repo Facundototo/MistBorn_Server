@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.EventListener;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector2;
 import com.bakpun.mistborn.enums.Movimiento;
 import com.bakpun.mistborn.enums.TipoPersonaje;
 import com.bakpun.mistborn.enums.TipoPoder;
@@ -71,6 +72,20 @@ public class Listeners {
 		for (EventListener listener : listeners) {
 			if(listener instanceof EventoMoverPj)
 			((EventoMoverPj)listener).mover(movimiento,id);
+		}
+	}
+	
+	public static void actualizarPosClientes(int id, Vector2 coor) {
+		for (EventListener listener : listeners) {
+			if(listener instanceof EventoInformacionPj)
+			((EventoInformacionPj)listener).actualizarPosClientes(id,coor);
+		}
+	}
+	
+	public static void actualizarAnimaClientes(int id, int frameIndex,Movimiento mov,boolean saltando) {
+		for (EventListener listener : listeners) {
+			if(listener instanceof EventoInformacionPj)
+			((EventoInformacionPj)listener).actualizarAnimaClientes(id,frameIndex,mov,saltando);
 		}
 	}
 }

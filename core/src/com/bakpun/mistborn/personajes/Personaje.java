@@ -30,6 +30,7 @@ import com.bakpun.mistborn.io.Entradas;
 import com.bakpun.mistborn.poderes.Acero;
 import com.bakpun.mistborn.poderes.Peltre;
 import com.bakpun.mistborn.poderes.Poder;
+import com.bakpun.mistborn.redes.HiloServidor;
 import com.bakpun.mistborn.utiles.Render;
 
 public abstract class Personaje implements EventoReducirVida,EventoGestionMonedas,EventoMoverPj{
@@ -107,11 +108,14 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		calcularAcciones();	//Activa o desactiva las acciones del pj en base al input.
 		calcularSalto();	//Calcula el salto con la gravedad.
 		calcularMovimiento();	//Calcula el movimiento.
+		if(HiloServidor.clientesEncontrados) {
+			Listeners.actualizarPosClientes(this.id, this.pj.getPosition());
+			animar();	//Animacion del pj.
+		}
 		
 		pj.setLinearVelocity(movimiento);	//Aplico al pj velocidad lineal, tanto para correr como para saltar.
 		spr.setPosicion(pj.getPosition().x, pj.getPosition().y);	//Le digo al Sprite que se ponga en la posicion del body.
 		
-		animar();	//Animacion del pj.
 		reproducirSFX();	//Efectos de sonido.
 		
 		//aumentarEnergia(delta);	//Aumento de los poderes.
@@ -190,24 +194,32 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	}
 
 	private void animar() {
-		
-		if(estaQuieto) {
-			if(!c.isPuedeSaltar(pj)) {		//si estaQuieto pero salta, hace la animacion de salto.
-				spr.draw(saltos[0]);
-			}else {
-				spr.draw(animacionQuieto.getCurrentFrame());
+		if(c.isPuedeSaltar(pj)) {
+			if(mov == Movimiento.QUIETO) {
+				if(!c.isPuedeSaltar(pj)) {		//si estaQuieto pero salta, hace la animacion de salto.
+					spr.draw(saltos[0]);
+				}else {
+					spr.draw(animacionQuieto.getCurrentFrame());
+					Listeners.actualizarAnimaClientes(this.id, animacionQuieto.getCurrentFrameIndex(),mov,false);
+				}
+			}else if(mov == Movimiento.DERECHA || mov == Movimiento.IZQUIERDA) { 	//Si esta corriendo muestra el fotograma actual de la animacionCorrer.
+				spr.draw(animacionCorrer.getCurrentFrame());
+				Listeners.actualizarAnimaClientes(this.id, animacionCorrer.getCurrentFrameIndex(),mov,false);
 			}
-		}else if(estaCorriendo) { 	//Si esta corriendo muestra el fotograma actual de la animacionCorrer.
-			spr.draw(animacionCorrer.getCurrentFrame());
-		}else if(primerSalto) {		
-			spr.draw(saltos[0]);		
-		}else if(segundoSalto) {		//saltos[] contiene las diferentes texturas, se van cambiando en base a la altura, o a la caida,
-			spr.draw(saltos[1]);		//por eso no lo hice con la clase Animacion, porque no es constante esto.
-		}else if(caidaSalto) {
-			spr.draw(saltos[2]);
+		}else {
+			if(primerSalto) {		
+				spr.draw(saltos[0]);		
+				Listeners.actualizarAnimaClientes(this.id, 0,mov,true);
+			}else if(segundoSalto) {		//saltos[] contiene las diferentes texturas, se van cambiando en base a la altura, o a la caida,
+				spr.draw(saltos[1]);		//por eso no lo hice con la clase Animacion, porque no es constante esto.
+				Listeners.actualizarAnimaClientes(this.id, 1,mov,true);
+			}else if(caidaSalto) {
+				spr.draw(saltos[2]);
+				Listeners.actualizarAnimaClientes(this.id, 2,mov,true);
+			}
 		}
-		if(!estaQuieto) {			//cuando !estaQuieto va a poder flipearse el pj, porque sino se queda mirando para un lado que no es.
-			spr.flip((correrDerecha)?false:true);
+		if(mov != Movimiento.QUIETO) {			//cuando mov no es QUIETO va a poder flipearse el pj, porque sino se queda mirando para un lado que no es.
+			spr.flip((mov == Movimiento.DERECHA)?false:true);
 		}
 	}
 	
