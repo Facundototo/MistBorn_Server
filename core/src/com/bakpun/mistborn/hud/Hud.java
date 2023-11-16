@@ -122,11 +122,6 @@ public final class Hud implements EventoCrearBarra,EventoReducirVida,EventoGesti
 		}
 	}
 	@Override
-	public void reducirVida(float dano) {
-		vida -= (dano/100)*245;
-	}
-
-	@Override
 	public void restarMonedas() {
 		cantMonedas.setText(String.valueOf(--monedas));
 	}
@@ -149,6 +144,12 @@ public final class Hud implements EventoCrearBarra,EventoReducirVida,EventoGesti
 	@Override
 	public void aumentarPoder(TipoPersonaje tipoPj,TipoPoder tipoPoder, float energia) {
 		energiaPoderes[(tipoPj == TipoPersonaje.NACIDO_BRUMA)?tipoPoder.getNroSeleccion():0] += (energia/100)*210;
+	}
+
+	@Override
+	public void reducirVida(float dano, int idOponente) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

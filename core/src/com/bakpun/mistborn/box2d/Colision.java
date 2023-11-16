@@ -18,6 +18,7 @@ public class Colision implements ContactListener{
 	private ArrayList<Body> pjMonedas = new ArrayList<Body>();
 	private ArrayList<Body> pjs = new ArrayList<Body>();
 	private ArrayList<Body> monedas = new ArrayList<Body>();	
+	private boolean estanChocando;
 	
 	public void beginContact(Contact contact) {
         Body bodyA = contact.getFixtureA().getBody();     //Me da los bodies que chocaron(contact).
@@ -43,6 +44,9 @@ public class Colision implements ContactListener{
         	pjMonedas.add(bodyB);  
         }
         
+        if(bodyA.getUserData() == UserData.PJ && bodyB.getUserData() == UserData.PJ) {        
+        	estanChocando = true;
+        }
     }
 	
 	public void endContact(Contact contact) {
@@ -66,6 +70,10 @@ public class Colision implements ContactListener{
         }else if(bodyB.getUserData() == UserData.PJ && bodyA.getUserData() == UserData.MONEDA) {
         	pjMonedas.remove(bodyB);  
         }
+        
+        if(bodyA.getUserData() == UserData.PJ && bodyB.getUserData() == UserData.PJ) {
+        	estanChocando = false;
+        }
     }
 	//Si el personaje esta tocando el suelo o una plataforma, entonces isPuedeSaltar retorna true, sino, false.
 	public boolean isPuedeSaltar(Body pj) {		//Retorna si en este momento, la lista tiene al pj, es decir que esta en el piso(true).
@@ -80,7 +88,9 @@ public class Colision implements ContactListener{
 		return this.pjMonedas.contains(pj);
 	}
  
-	
+	public boolean isPjsChocando() {
+		return this.estanChocando;
+	}
 	
 	@Override
 	public void preSolve(Contact contact, Manifold oldManifold) {

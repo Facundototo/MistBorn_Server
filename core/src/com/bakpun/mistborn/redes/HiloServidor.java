@@ -8,13 +8,15 @@ import java.net.SocketException;
 import java.util.EventListener;
 
 import com.badlogic.gdx.math.Vector2;
+import com.bakpun.mistborn.enums.Accion;
 import com.bakpun.mistborn.enums.InfoPersonaje;
 import com.bakpun.mistborn.enums.Movimiento;
 import com.bakpun.mistborn.eventos.EventoInformacionPj;
+import com.bakpun.mistborn.eventos.EventoReducirVida;
 import com.bakpun.mistborn.eventos.Listeners;
 
 
-public class HiloServidor extends Thread implements EventoInformacionPj, EventListener{
+public class HiloServidor extends Thread implements EventoInformacionPj,EventoReducirVida, EventListener{
 	private DatagramSocket socket;
 	public boolean fin = false;
 	private int puerto = 7654;
@@ -114,6 +116,20 @@ public class HiloServidor extends Thread implements EventoInformacionPj, EventLi
 			}while(!encontrado);
 			Listeners.mover(mov, Integer.valueOf(msg[2]));	//LLamamos al evento que va hacia los pj.
 			break;
+			
+		case "accion":
+			encontrado = false;
+			i = 0;
+			Accion accion = Accion.NADA;		
+			do {		
+				if(msg[1].equals(Accion.values()[i].getAccion())) {
+					accion = Accion.values()[i];
+					encontrado = true;
+				}
+				i++;
+			}while(!encontrado);
+			Listeners.ejecutar(accion, Integer.valueOf(msg[2]));
+			break;	
 		}
 	}
 
@@ -149,5 +165,15 @@ public class HiloServidor extends Thread implements EventoInformacionPj, EventLi
 		enviarMensaje(msg, clientes[0].getIpCliente(), clientes[0].getPuerto());
 		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());
 	}
+
+
+	@Override
+	public void reducirVida(float dano, int idOponente) {
+		String msg = "reducir_vida#" + String.valueOf(idOponente) + "#" + String.valueOf(dano);
+		enviarMensaje(msg, clientes[0].getIpCliente(), clientes[0].getPuerto());
+		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());
+	}
+	
+	
 	
 }

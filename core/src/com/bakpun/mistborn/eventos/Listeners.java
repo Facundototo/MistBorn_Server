@@ -5,6 +5,7 @@ import java.util.EventListener;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
+import com.bakpun.mistborn.enums.Accion;
 import com.bakpun.mistborn.enums.Movimiento;
 import com.bakpun.mistborn.enums.TipoPersonaje;
 import com.bakpun.mistborn.enums.TipoPoder;
@@ -25,10 +26,10 @@ public class Listeners {
 		}
 	}
 	
-	public static void reducirVidaPj(float dano) {		//Evento que se utiliza en Hud y Personaje.
+	public static void reducirVidaPj(float dano, int idOponente) {		//Evento que se utiliza en Hud y Personaje.
 		for (EventListener listener : listeners) {
 			if(listener instanceof EventoReducirVida) {
-				((EventoReducirVida)listener).reducirVida(dano);
+				((EventoReducirVida)listener).reducirVida(dano,idOponente);
 			}
 		}
 	}
@@ -70,8 +71,15 @@ public class Listeners {
 	
 	public static void mover(Movimiento movimiento,int id) {
 		for (EventListener listener : listeners) {
-			if(listener instanceof EventoMoverPj)
-			((EventoMoverPj)listener).mover(movimiento,id);
+			if(listener instanceof EventoEntradasPj)
+			((EventoEntradasPj)listener).mover(movimiento,id);
+		}
+	}
+	
+	public static void ejecutar(Accion accion,int id) {
+		for (EventListener listener : listeners) {
+			if(listener instanceof EventoEntradasPj)
+			((EventoEntradasPj)listener).ejecutar(accion,id);
 		}
 	}
 	

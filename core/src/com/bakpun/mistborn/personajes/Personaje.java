@@ -15,6 +15,7 @@ import com.bakpun.mistborn.box2d.ColisionMouse;
 import com.bakpun.mistborn.box2d.Fisica;
 import com.bakpun.mistborn.elementos.Animacion;
 import com.bakpun.mistborn.elementos.Imagen;
+import com.bakpun.mistborn.enums.Accion;
 import com.bakpun.mistborn.enums.Movimiento;
 import com.bakpun.mistborn.enums.OpcionAcero;
 import com.bakpun.mistborn.enums.Spawn;
@@ -23,7 +24,7 @@ import com.bakpun.mistborn.enums.TipoPersonaje;
 import com.bakpun.mistborn.enums.TipoPoder;
 import com.bakpun.mistborn.enums.UserData;
 import com.bakpun.mistborn.eventos.EventoGestionMonedas;
-import com.bakpun.mistborn.eventos.EventoMoverPj;
+import com.bakpun.mistborn.eventos.EventoEntradasPj;
 import com.bakpun.mistborn.eventos.EventoReducirVida;
 import com.bakpun.mistborn.eventos.Listeners;
 import com.bakpun.mistborn.io.Entradas;
@@ -33,7 +34,7 @@ import com.bakpun.mistborn.poderes.Poder;
 import com.bakpun.mistborn.redes.HiloServidor;
 import com.bakpun.mistborn.utiles.Render;
 
-public abstract class Personaje implements EventoReducirVida,EventoGestionMonedas,EventoMoverPj{
+public abstract class Personaje implements EventoReducirVida,EventoGestionMonedas,EventoEntradasPj{
 	
 	private float velocidadX = 15f, impulsoY = 20f;
 	
@@ -55,10 +56,11 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	private TipoPersonaje tipoPj;
 	private Spawn spawn;
 	private Movimiento mov = Movimiento.QUIETO;
+	private Accion accion;
 	
 	private boolean saltar,puedeMoverse,estaCorriendo,estaQuieto,apuntando,disparando,primerSalto,segundoSalto,caidaSalto,correrDerecha,correrIzquierda;
-	private boolean reproducirSonidoCorrer;
-	private float duracionQuieto = 0.2f,duracionCorrer = 0.15f,tiempoMonedas = 0f;
+	private boolean reproducirSonidoCorrer,flagEmpujar;
+	private float duracionQuieto = 0.2f,duracionCorrer = 0.15f,tiempoMonedas = 0f,tiempoEmpuje = 0f;
 	private int seleccion = 0, id = -1;
 	
 	public Personaje(String rutaPj,String[] animacionSaltos,String[] animacionEstados,World mundo,Entradas entradas,Colision c,OrthographicCamera cam,Spawn spawn,TipoPersonaje tipoPj, int id) {
@@ -105,6 +107,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		
 		updateAnimacion(delta);
 		
+		calcularGolpe();
 		calcularAcciones();	//Activa o desactiva las acciones del pj en base al input.
 		calcularSalto();	//Calcula el salto con la gravedad.
 		calcularMovimiento();	//Calcula el movimiento.
@@ -116,11 +119,20 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		pj.setLinearVelocity(movimiento);	//Aplico al pj velocidad lineal, tanto para correr como para saltar.
 		spr.setPosicion(pj.getPosition().x, pj.getPosition().y);	//Le digo al Sprite que se ponga en la posicion del body.
 		
-		reproducirSFX();	//Efectos de sonido.
+		if(flagEmpujar) {empujarme(delta);}
 		
+		reproducirSFX();	//Efectos de sonido.
+	
 		//aumentarEnergia(delta);	//Aumento de los poderes.
 		//quemarPoder();	//Seleccion de poderes. Y demas acciones respecto a los mismos.
 	}
+	
+	private void calcularGolpe() {
+		if(c.isPjsChocando() && accion == Accion.GOLPE) {
+			Listeners.reducirVidaPj(20, ((this.id == 0)?1:0));
+		}
+	}
+
 	private void aumentarEnergia(float delta) {
 		this.tiempoMonedas += delta;	
 		/*Inconvenientes de hacer esto: Cuando se termina la energia pero vos seguis manteniendo el disparo 
@@ -229,6 +241,17 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		cm.dispose();
 	}
 	
+	private void empujarme(float delta) {
+		tiempoEmpuje += delta;
+		if(tiempoEmpuje <= 0.3f) {
+			pj.setLinearVelocity(2, 15);
+		}else {
+			tiempoEmpuje = 0f;
+			flagEmpujar = false;
+		}
+		
+	}
+	
 	private void crearAnimaciones() {
 		animacionQuieto = new Animacion();
 		animacionQuieto.create(animacionEstados[0], 4,1, duracionQuieto);
@@ -283,9 +306,13 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	}
 	
 	@Override
-	public void reducirVida(float dano) {
-		this.vida -= dano;
+	public void reducirVida(float dano, int idOponente) {
+		if(this.id == idOponente){
+			this.vida -= dano;
+			flagEmpujar = true;
+		}
 	}
+	
 	@Override
 	public void restarMonedas() {
 		this.monedas--;
@@ -295,6 +322,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		this.monedas++;
 	}
 	
+	@Override
 	public void mover(Movimiento movimiento, int id) {
 		if(this.id == id) {		//Se chequea el id del pj.
 			if((movimiento == Movimiento.SALTO) && (c.isPuedeSaltar(pj))) {	//Si es Salto y esta en el piso se activa la flag saltar.
@@ -302,6 +330,13 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 			}else {
 				this.mov = movimiento;
 			}
+		}
+	}
+	
+	@Override
+	public void ejecutar(Accion accion, int id) {
+		if(this.id == id) {
+			this.accion = accion;
 		}
 	}
 	
