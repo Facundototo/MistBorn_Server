@@ -107,7 +107,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		
 		updateAnimacion(delta);
 		
-		calcularGolpe();
+		calcularGolpe();	
 		calcularAcciones();	//Activa o desactiva las acciones del pj en base al input.
 		calcularSalto();	//Calcula el salto con la gravedad.
 		calcularMovimiento();	//Calcula el movimiento.
@@ -119,7 +119,11 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		pj.setLinearVelocity(movimiento);	//Aplico al pj velocidad lineal, tanto para correr como para saltar.
 		spr.setPosicion(pj.getPosition().x, pj.getPosition().y);	//Le digo al Sprite que se ponga en la posicion del body.
 		
-		if(flagEmpujar) {empujarme(delta);}
+		if(flagEmpujar) {empujarme(delta);}		//Cuando se reduce la vida tambien se genera un impulso para que no sigan pegados los pjs.
+		
+		if(this.vida <= 0) {
+			Listeners.terminarPelea((this.id == 0)?1:0);
+		}
 		
 		reproducirSFX();	//Efectos de sonido.
 	
@@ -128,7 +132,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	}
 	
 	private void calcularGolpe() {
-		if(c.isPjsChocando() && accion == Accion.GOLPE) {
+		if(c.isPjsChocando() && accion == Accion.GOLPE) {		//Si estan juntos y uno toca click se reduce la vida del oponente.
 			Listeners.reducirVidaPj(20, ((this.id == 0)?1:0));
 		}
 	}

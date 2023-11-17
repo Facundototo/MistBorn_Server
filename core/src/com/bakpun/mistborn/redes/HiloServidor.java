@@ -173,6 +173,13 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 		enviarMensaje(msg, clientes[0].getIpCliente(), clientes[0].getPuerto());
 		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());
 	}
+
+
+	@Override
+	public void enviarTerminaPelea(int idGanador) {
+		enviarMensaje("terminaPelea#" + ((idGanador == 0)?"Ganaste!":"Perdiste"), clientes[0].getIpCliente(), clientes[0].getPuerto());
+		enviarMensaje("terminaPelea#" + ((idGanador == 1)?"Ganaste!":"Perdiste"), clientes[1].getIpCliente(), clientes[1].getPuerto());
+	}
 	
 	
 	

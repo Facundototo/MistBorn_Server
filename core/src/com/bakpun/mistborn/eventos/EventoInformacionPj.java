@@ -6,4 +6,5 @@ import com.bakpun.mistborn.enums.Movimiento;
 public interface EventoInformacionPj {
 	void actualizarPosClientes(int id, Vector2 coor);
 	void actualizarAnimaClientes(int id, int frameIndex, Movimiento mov,boolean saltando);
+	void enviarTerminaPelea(int idGanador);
 }

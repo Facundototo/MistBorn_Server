@@ -96,4 +96,11 @@ public class Listeners {
 			((EventoInformacionPj)listener).actualizarAnimaClientes(id,frameIndex,mov,saltando);
 		}
 	}
+	
+	public static void terminarPelea(int idGanador) {
+		for (EventListener listener : listeners) {
+			if(listener instanceof EventoInformacionPj)
+			((EventoInformacionPj)listener).enviarTerminaPelea(idGanador);
+		}
+	}
 }
