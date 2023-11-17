@@ -130,6 +130,14 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 			}while(!encontrado);
 			Listeners.ejecutar(accion, Integer.valueOf(msg[2]));
 			break;	
+			
+		case "poderPeltre":
+			Listeners.activarPeltre(Boolean.valueOf(msg[1]), Integer.valueOf(msg[2]));
+			break;
+			
+		case "selecPoder":
+			Listeners.seleccionPoder(Integer.valueOf(msg[1]), Integer.valueOf(msg[2]));
+			break;	
 		}
 	}
 
@@ -150,14 +158,12 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 		
 	}
 
-
 	@Override
 	public void actualizarPosClientes(int id, Vector2 coor) {
 		String msg = "posPj#" + String.valueOf(id) + "#" + String.valueOf(coor.x) + "#" + String.valueOf(coor.y);
 		enviarMensaje(msg, clientes[0].getIpCliente(), clientes[0].getPuerto());
 		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());	
 	}
-
 
 	@Override
 	public void actualizarAnimaClientes(int id, int frameIndex,Movimiento mov,boolean saltando) {
@@ -166,14 +172,12 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());
 	}
 
-
 	@Override
 	public void reducirVida(float dano, int idOponente) {
 		String msg = "reducir_vida#" + String.valueOf(idOponente) + "#" + String.valueOf(dano);
 		enviarMensaje(msg, clientes[0].getIpCliente(), clientes[0].getPuerto());
 		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());
 	}
-
 
 	@Override
 	public void enviarTerminaPelea(int idGanador) {

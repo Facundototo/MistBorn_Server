@@ -23,18 +23,20 @@ import com.bakpun.mistborn.enums.TipoAudio;
 import com.bakpun.mistborn.enums.TipoPersonaje;
 import com.bakpun.mistborn.enums.TipoPoder;
 import com.bakpun.mistborn.enums.UserData;
-import com.bakpun.mistborn.eventos.EventoGestionMonedas;
 import com.bakpun.mistborn.eventos.EventoEntradasPj;
+import com.bakpun.mistborn.eventos.EventoGestionMonedas;
 import com.bakpun.mistborn.eventos.EventoReducirVida;
+import com.bakpun.mistborn.eventos.EventoUtilizarPoderes;
 import com.bakpun.mistborn.eventos.Listeners;
 import com.bakpun.mistborn.io.Entradas;
 import com.bakpun.mistborn.poderes.Acero;
 import com.bakpun.mistborn.poderes.Peltre;
 import com.bakpun.mistborn.poderes.Poder;
 import com.bakpun.mistborn.redes.HiloServidor;
+import com.bakpun.mistborn.utiles.Config;
 import com.bakpun.mistborn.utiles.Render;
 
-public abstract class Personaje implements EventoReducirVida,EventoGestionMonedas,EventoEntradasPj{
+public abstract class Personaje implements EventoReducirVida,EventoGestionMonedas,EventoEntradasPj,EventoUtilizarPoderes{
 	
 	private float velocidadX = 15f, impulsoY = 20f;
 	
@@ -59,7 +61,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	private Accion accion;
 	
 	private boolean saltar,puedeMoverse,estaCorriendo,estaQuieto,apuntando,disparando,primerSalto,segundoSalto,caidaSalto,correrDerecha,correrIzquierda;
-	private boolean reproducirSonidoCorrer,flagEmpujar;
+	private boolean reproducirSonidoCorrer,flagEmpujar,flagPeltre;
 	private float duracionQuieto = 0.2f,duracionCorrer = 0.15f,tiempoMonedas = 0f,tiempoEmpuje = 0f;
 	private int seleccion = 0, id = -1;
 	
@@ -87,7 +89,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	protected abstract void crearPoderes(World mundo,OrthographicCamera cam,Colision c);
 	
 	private void crearBody(World mundo) {
-		f.setBody(BodyType.DynamicBody,new Vector2((spawn == Spawn.IZQUIERDA)?10:20,5));
+		f.setBody(BodyType.DynamicBody,new Vector2((spawn == Spawn.IZQUIERDA)?(Config.ANCHO/4)/Box2dConfig.PPM:(Config.ANCHO/1.5f)/Box2dConfig.PPM,5));
 		f.createPolygon(spr.getTexture().getWidth()/Box2dConfig.PPM, spr.getTexture().getHeight()/Box2dConfig.PPM);		//Uso la clase Fisica.
 		f.setFixture(f.getPolygon(), 60, 0, 0);
 		pj = mundo.createBody(f.getBody());
@@ -111,7 +113,9 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		calcularAcciones();	//Activa o desactiva las acciones del pj en base al input.
 		calcularSalto();	//Calcula el salto con la gravedad.
 		calcularMovimiento();	//Calcula el movimiento.
+		
 		if(HiloServidor.clientesEncontrados) {
+			if(this.vida <= 0) {Listeners.terminarPelea((this.id == 0)?1:0);}
 			Listeners.actualizarPosClientes(this.id, this.pj.getPosition());
 			animar();	//Animacion del pj.
 		}
@@ -121,14 +125,10 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		
 		if(flagEmpujar) {empujarme(delta);}		//Cuando se reduce la vida tambien se genera un impulso para que no sigan pegados los pjs.
 		
-		if(this.vida <= 0) {
-			Listeners.terminarPelea((this.id == 0)?1:0);
-		}
-		
 		reproducirSFX();	//Efectos de sonido.
 	
 		//aumentarEnergia(delta);	//Aumento de los poderes.
-		//quemarPoder();	//Seleccion de poderes. Y demas acciones respecto a los mismos.
+		quemarPoder();	//Seleccion de poderes. Y demas acciones respecto a los mismos.
 	}
 	
 	private void calcularGolpe() {
@@ -156,27 +156,27 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	}
 
 	private void quemarPoder() {
-		if(tipoPj == TipoPersonaje.NACIDO_BRUMA){		//Si es nacido de la bruma, puede seleccionar los poderes.
+		/*if(tipoPj == TipoPersonaje.NACIDO_BRUMA){		//Si es nacido de la bruma, puede seleccionar los poderes.
 			if(entradas.isPrimerPoder()) {seleccion = 0;}
 			else if(entradas.isSegundoPoder()) {seleccion = 1;}
 			else if(Gdx.input.isKeyJustPressed(Keys.R) || ((Peltre)poderes[2]).isPoderActivo()) {poderes[2].quemar();}
-		}//Si es violento y toco la R o si es violento y el poder esta activo se llama al metodo quemar(),logica tiene porque si esta activo, se esta quemando.
-		if((tipoPj == TipoPersonaje.VIOLENTO) && (Gdx.input.isKeyJustPressed(Keys.R) || ((Peltre)poderes[seleccion]).isPoderActivo())){poderes[seleccion].quemar();}		
-		
+		}*/
+		if(flagPeltre){aumentarVelocidad();}		
+		else {reducirVelocidad();}
 		// Este if le sirve tanto al nacido de la bruma como a atraedor y lanzamonedas.
-		if(disparando && tipoPj != TipoPersonaje.VIOLENTO) {poderes[seleccion].quemar();} 
+		if(accion == Accion.DISPARANDO && tipoPj != TipoPersonaje.VIOLENTO) {poderes[seleccion].quemar();} 
 		
 		// Chequea todo el tiempo calcularFuerzas() porque lo que pasa es que todo lo de Disparo no se puede chequear en Acero.
 		if(poderes[seleccion].getTipoPoder() == TipoPoder.ACERO) {
 			poderes[seleccion].getDisparo().calcularFuerzas(disparando);	
-			if(Gdx.input.isKeyJustPressed(Keys.X)) {		//Si la seleccion es Acero y toca la X, se cambia la opcion.
+			if(accion == Accion.TOCA_X) {		//Si la seleccion es Acero y toca la X, se cambia la opcion.
 				((Acero)poderes[seleccion]).cambiarOpcion();	//Lo casteo porque cambiarOpcion() es propia de Acero.
 			}
 		}
 		//Si el poder seleccionado es hierro o acero pero con la opcion de empujar, se dibuja el puntero.
-		if((poderes[seleccion].getTipoPoder() == TipoPoder.HIERRO) || (poderes[seleccion].getTipoPoder() == TipoPoder.ACERO && ((Acero)poderes[seleccion]).getOpcion() == OpcionAcero.EMPUJE)) {
+		/*if((poderes[seleccion].getTipoPoder() == TipoPoder.HIERRO) || (poderes[seleccion].getTipoPoder() == TipoPoder.ACERO && ((Acero)poderes[seleccion]).getOpcion() == OpcionAcero.EMPUJE)) {
 			cm.dibujar(new Vector2(pj.getPosition().x,pj.getPosition().y), new Vector2(entradas.getMouseX()/Box2dConfig.PPM,entradas.getMouseY()/Box2dConfig.PPM));
-		}
+		}*/
 		
 	}
 
@@ -300,8 +300,8 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		pj.setLinearVelocity(movimiento);
 	}
 	public void aumentarVelocidad() {		//Metodo que se usa en el poder Peltre.
-		velocidadX = velocidadX*2;	
-		impulsoY = impulsoY*1.5f;	//x2 es mucho.
+		velocidadX = 30;	
+		impulsoY = 30;	//x2 es mucho.
 	}
 	
 	public void reducirVelocidad() { 	//Metodo que se usa en el poder Peltre.
@@ -335,6 +335,25 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 				this.mov = movimiento;
 			}
 		}
+	}
+	
+	@Override
+	public void activarPeltre(boolean activo, int id) {
+		if(this.id == id) {
+			this.flagPeltre = activo;
+		}
+	}
+	
+	@Override
+	public void seleccionPoder(int selecPoder,int id) {
+		if(this.id == id) {
+			this.seleccion = selecPoder;
+		}
+	}
+	
+	@Override
+	public void posMouse(float x, float y,int id) {
+		//poner x y mouse, en verdad va en Disparo y ColisionMouse.
 	}
 	
 	@Override
