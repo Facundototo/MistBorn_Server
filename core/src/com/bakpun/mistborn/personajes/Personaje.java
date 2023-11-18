@@ -34,6 +34,7 @@ import com.bakpun.mistborn.poderes.Peltre;
 import com.bakpun.mistborn.poderes.Poder;
 import com.bakpun.mistborn.redes.HiloServidor;
 import com.bakpun.mistborn.utiles.Config;
+import com.bakpun.mistborn.utiles.Recursos;
 import com.bakpun.mistborn.utiles.Render;
 
 public abstract class Personaje implements EventoReducirVida,EventoGestionMonedas,EventoEntradasPj,EventoUtilizarPoderes{
@@ -46,7 +47,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	private Imagen spr;
 	private Entradas entradas;
 	private Body pj;
-	private Vector2 movimiento;
+	private Vector2 movimiento, posMouse;
 	private Fisica f;
 	private Colision c;
 	private ColisionMouse cm;
@@ -76,13 +77,14 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		this.monedas = 10;	//Monedas iniciales 10.
 		this.id = id; 
 		movimiento = new Vector2();
+		posMouse = new Vector2();
 		f = new Fisica();
 		cm = new ColisionMouse(mundo,cam);
  		spr = new Imagen(rutaPj);
  		spr.setEscalaBox2D(12);
 		crearAnimaciones();
 		crearBody(mundo);
-		//{crearPoderes(mundo,cam,c);} 	//Si es oponente no se crean los poderes.
+		crearPoderes(mundo,cam,c); 	//Si es oponente no se crean los poderes.
 		Listeners.agregarListener(this);
 	}
 	
@@ -118,6 +120,8 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 			if(this.vida <= 0) {Listeners.terminarPelea((this.id == 0)?1:0);}
 			Listeners.actualizarPosClientes(this.id, this.pj.getPosition());
 			animar();	//Animacion del pj.
+			//aumentarEnergia(delta);	//Aumento de los poderes.
+			
 		}
 		
 		pj.setLinearVelocity(movimiento);	//Aplico al pj velocidad lineal, tanto para correr como para saltar.
@@ -127,8 +131,8 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		
 		reproducirSFX();	//Efectos de sonido.
 	
-		//aumentarEnergia(delta);	//Aumento de los poderes.
-		quemarPoder();	//Seleccion de poderes. Y demas acciones respecto a los mismos.
+		quemarPoder();	//Seleccion de poderes. Y demas acciones respecto a los mismos
+		
 	}
 	
 	private void calcularGolpe() {
@@ -168,15 +172,17 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		
 		// Chequea todo el tiempo calcularFuerzas() porque lo que pasa es que todo lo de Disparo no se puede chequear en Acero.
 		if(poderes[seleccion].getTipoPoder() == TipoPoder.ACERO) {
-			poderes[seleccion].getDisparo().calcularFuerzas(disparando);	
+			//poderes[seleccion].getDisparo().calcularFuerzas(disparando);	
 			if(accion == Accion.TOCA_X) {		//Si la seleccion es Acero y toca la X, se cambia la opcion.
+				System.out.println("cambiado");
 				((Acero)poderes[seleccion]).cambiarOpcion();	//Lo casteo porque cambiarOpcion() es propia de Acero.
 			}
 		}
 		//Si el poder seleccionado es hierro o acero pero con la opcion de empujar, se dibuja el puntero.
-		/*if((poderes[seleccion].getTipoPoder() == TipoPoder.HIERRO) || (poderes[seleccion].getTipoPoder() == TipoPoder.ACERO && ((Acero)poderes[seleccion]).getOpcion() == OpcionAcero.EMPUJE)) {
-			cm.dibujar(new Vector2(pj.getPosition().x,pj.getPosition().y), new Vector2(entradas.getMouseX()/Box2dConfig.PPM,entradas.getMouseY()/Box2dConfig.PPM));
-		}*/
+		if((poderes[seleccion].getTipoPoder() == TipoPoder.HIERRO) || (poderes[seleccion].getTipoPoder() == TipoPoder.ACERO && ((Acero)poderes[seleccion]).getOpcion() == OpcionAcero.EMPUJE)) {
+			cm.dibujar(pj.getPosition(), posMouse);
+			Listeners.actualizarColisionPj(cm.getPuntoColision().x, cm.getPuntoColision().y, this.id);
+		}
 		
 	}
 
@@ -353,7 +359,9 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	
 	@Override
 	public void posMouse(float x, float y,int id) {
-		//poner x y mouse, en verdad va en Disparo y ColisionMouse.
+		if(this.id == id) {
+			this.posMouse.set(x, y);
+		}
 	}
 	
 	@Override

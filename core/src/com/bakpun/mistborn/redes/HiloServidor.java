@@ -138,6 +138,10 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 		case "selecPoder":
 			Listeners.seleccionPoder(Integer.valueOf(msg[1]), Integer.valueOf(msg[2]));
 			break;	
+			
+		case "posMouse":
+			Listeners.posMouse(Float.valueOf(msg[1]), Float.valueOf(msg[2]), Integer.valueOf(msg[3]));
+			break;		
 		}
 	}
 
@@ -185,6 +189,9 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 		enviarMensaje("terminaPelea#" + ((idGanador == 1)?"Ganaste!":"Perdiste"), clientes[1].getIpCliente(), clientes[1].getPuerto());
 	}
 	
-	
+	@Override
+	public void actualizarColisionPj(float x, float y, int id) {
+		enviarMensaje("actColision#" + String.valueOf(x) + "#" + String.valueOf(y), clientes[id].getIpCliente(), clientes[id].getPuerto());
+	}
 	
 }

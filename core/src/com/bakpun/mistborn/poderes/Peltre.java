@@ -17,7 +17,6 @@ public class Peltre extends Poder{
 
 	@Override
 	public void quemar() {
-		
 		/*if(!poderActivo) {
 			//if(super.energia >= 20f) {
 				//this.duracion = r.nextInt(3)+5;

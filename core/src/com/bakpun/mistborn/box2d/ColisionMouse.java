@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.bakpun.mistborn.elementos.Imagen;
 import com.bakpun.mistborn.enums.UserData;
+import com.bakpun.mistborn.eventos.Listeners;
 import com.bakpun.mistborn.utiles.Recursos;
 
 
@@ -53,11 +54,7 @@ public class ColisionMouse {
 	}
 	
 	public boolean isColision() {
-		if(colisionando) {
-			return true;
-		}else {
-			return false;
-		}
+		return this.colisionando;
 	}
 	
 	public Vector2 getPuntoColision() {

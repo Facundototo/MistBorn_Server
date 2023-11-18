@@ -26,7 +26,7 @@ public class Acero extends Poder implements Disparable{
 		if(super.energia > 0f) {
 			if(this.opcion == OpcionAcero.DISPARO) {
 				if(super.disparo.getCantMonedas() > 0) {		//Si tiene monedas dispara sino no puede.
-					Listeners.reducirPoderPj(this.pj.getTipo(), super.tipo, 0.5f);
+					//Listeners.reducirPoderPj(this.pj.getTipo(), super.tipo, 0.5f);
 					super.disparo.disparar(super.energia);
 				}
 			}else {

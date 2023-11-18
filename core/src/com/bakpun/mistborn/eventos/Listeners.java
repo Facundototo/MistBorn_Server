@@ -124,4 +124,11 @@ public class Listeners {
 			((EventoInformacionPj)listener).enviarTerminaPelea(idGanador);
 		}
 	}
+	
+	public static void actualizarColisionPj(float x, float y, int id) {
+		for (EventListener listener : listeners) {
+			if(listener instanceof EventoInformacionPj)
+			((EventoInformacionPj)listener).actualizarColisionPj(x,y,id);
+		}
+	}
 }
