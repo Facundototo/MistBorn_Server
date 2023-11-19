@@ -7,5 +7,5 @@ public interface EventoInformacionPj {
 	void actualizarPosClientes(int id, Vector2 coor);
 	void actualizarAnimaClientes(int id, int frameIndex, Movimiento mov,boolean saltando);
 	void enviarTerminaPelea(int idGanador);
-	void actualizarColisionPj(float x, float y, int id);
+	void actualizarColisionPj(float x, float y, int id,boolean colisionando);
 }

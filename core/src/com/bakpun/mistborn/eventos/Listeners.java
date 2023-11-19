@@ -125,10 +125,10 @@ public class Listeners {
 		}
 	}
 	
-	public static void actualizarColisionPj(float x, float y, int id) {
+	public static void actualizarColisionPj(float x, float y, int id,boolean colisionando) {
 		for (EventListener listener : listeners) {
 			if(listener instanceof EventoInformacionPj)
-			((EventoInformacionPj)listener).actualizarColisionPj(x,y,id);
+			((EventoInformacionPj)listener).actualizarColisionPj(x,y,id,colisionando);
 		}
 	}
 }

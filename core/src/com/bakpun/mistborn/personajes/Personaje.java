@@ -116,23 +116,19 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		calcularSalto();	//Calcula el salto con la gravedad.
 		calcularMovimiento();	//Calcula el movimiento.
 		
+		pj.setLinearVelocity(movimiento);	//Aplico al pj velocidad lineal, tanto para correr como para saltar.
+		spr.setPosicion(pj.getPosition().x, pj.getPosition().y);	//Le digo al Sprite que se ponga en la posicion del body.
+		
 		if(HiloServidor.clientesEncontrados) {
 			if(this.vida <= 0) {Listeners.terminarPelea((this.id == 0)?1:0);}
 			Listeners.actualizarPosClientes(this.id, this.pj.getPosition());
 			animar();	//Animacion del pj.
 			//aumentarEnergia(delta);	//Aumento de los poderes.
-			
+			quemarPoder();	//Seleccion de poderes. Y demas acciones respecto a los mismos
 		}
-		
-		pj.setLinearVelocity(movimiento);	//Aplico al pj velocidad lineal, tanto para correr como para saltar.
-		spr.setPosicion(pj.getPosition().x, pj.getPosition().y);	//Le digo al Sprite que se ponga en la posicion del body.
-		
 		if(flagEmpujar) {empujarme(delta);}		//Cuando se reduce la vida tambien se genera un impulso para que no sigan pegados los pjs.
 		
 		reproducirSFX();	//Efectos de sonido.
-	
-		quemarPoder();	//Seleccion de poderes. Y demas acciones respecto a los mismos
-		
 	}
 	
 	private void calcularGolpe() {
@@ -174,14 +170,13 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		if(poderes[seleccion].getTipoPoder() == TipoPoder.ACERO) {
 			//poderes[seleccion].getDisparo().calcularFuerzas(disparando);	
 			if(accion == Accion.TOCA_X) {		//Si la seleccion es Acero y toca la X, se cambia la opcion.
-				System.out.println("cambiado");
 				((Acero)poderes[seleccion]).cambiarOpcion();	//Lo casteo porque cambiarOpcion() es propia de Acero.
 			}
 		}
 		//Si el poder seleccionado es hierro o acero pero con la opcion de empujar, se dibuja el puntero.
 		if((poderes[seleccion].getTipoPoder() == TipoPoder.HIERRO) || (poderes[seleccion].getTipoPoder() == TipoPoder.ACERO && ((Acero)poderes[seleccion]).getOpcion() == OpcionAcero.EMPUJE)) {
 			cm.dibujar(pj.getPosition(), posMouse);
-			Listeners.actualizarColisionPj(cm.getPuntoColision().x, cm.getPuntoColision().y, this.id);
+			Listeners.actualizarColisionPj(cm.getPuntoColision().x, cm.getPuntoColision().y, this.id, cm.isColision());
 		}
 		
 	}

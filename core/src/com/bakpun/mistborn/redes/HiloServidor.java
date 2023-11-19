@@ -190,8 +190,8 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 	}
 	
 	@Override
-	public void actualizarColisionPj(float x, float y, int id) {
-		enviarMensaje("actColision#" + String.valueOf(x) + "#" + String.valueOf(y), clientes[id].getIpCliente(), clientes[id].getPuerto());
+	public void actualizarColisionPj(float x, float y, int id, boolean colisionando) {
+		enviarMensaje("actColision#" + String.valueOf(x) + "#" + String.valueOf(y) + "#" + String.valueOf(colisionando), clientes[id].getIpCliente(), clientes[id].getPuerto());
 	}
 	
 }
