@@ -144,7 +144,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		permite que haya un minimo de energia para el disparo cuando la condicion del disparo es que energia > 0*/
 		for (int i = 0; i < poderes.length; i++) {	
 			if(poderes[i].getEnergia() < 100) {
-				Listeners.aumentarPoderPj(this.tipoPj, poderes[i].getTipoPoder(), 0.05f);
+				Listeners.aumentarPoderPj(this.tipoPj, poderes[i].getTipoPoder(), 0.05f, this.id);
 			}
 			if(this.tiempoMonedas > 2) { //Es el cooldown que tiene la regeneracion de las monedas.
 				if(this.monedas < 10) {		//Si las monedas son 10 no se aumentan pero si se resetea el contador.
@@ -374,6 +374,10 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	}
 	public TipoPersonaje getTipo() {
 		return this.tipoPj;
+	}
+	
+	public int getId() {
+		return this.id;
 	}
 	
 }

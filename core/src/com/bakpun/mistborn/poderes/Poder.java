@@ -17,7 +17,7 @@ public abstract class Poder implements EventoGestionPoderes{
 	
 	public Poder(String ruta,Color color,TipoPoder tipo,Personaje pj) {
 		Listeners.agregarListener(this);
-		Listeners.crearBarraHUD(ruta, color,tipo);	//Llama al evento para crear la barra especifica del Hud.
+		//Listeners.crearBarraHUD(ruta, color,tipo);	//Llama al evento para crear la barra especifica del Hud.
 		this.pj = pj;
 		this.tipo = tipo;
 	}
@@ -37,14 +37,14 @@ public abstract class Poder implements EventoGestionPoderes{
 	}
 	
 	@Override
-	public void reducirPoder(TipoPersonaje tipoPj,TipoPoder tipoPoder,float energia) {
-		if(tipo == tipoPoder) {
+	public void reducirPoder(TipoPersonaje tipoPj,TipoPoder tipoPoder,float energia,int id) {
+		if(tipo == tipoPoder && pj.getId() == id) {
 			this.energia -= energia;
 		}	
 	}
 	@Override
-	public void aumentarPoder(TipoPersonaje tipoPj,TipoPoder tipoPoder, float energia) {
-		if(tipo == tipoPoder) {
+	public void aumentarPoder(TipoPersonaje tipoPj,TipoPoder tipoPoder, float energia, int id) {
+		if(tipo == tipoPoder && pj.getId() == id) {
 			this.energia += energia;
 		}
 	}

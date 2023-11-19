@@ -123,27 +123,27 @@ public final class Hud implements EventoCrearBarra,EventoReducirVida,EventoGesti
 	}
 	@Override
 	public void restarMonedas() {
-		cantMonedas.setText(String.valueOf(--monedas));
+		//cantMonedas.setText(String.valueOf(--monedas));
 	}
 	@Override
 	public void aumentarMonedas() {
-		cantMonedas.setText(String.valueOf(++monedas));
+		//cantMonedas.setText(String.valueOf(++monedas));
 	}
 
 	@Override
 	public void setDuracion(int segundo) {
-		this.tiempoPeltre.setText(String.valueOf(segundo));
+		//this.tiempoPeltre.setText(String.valueOf(segundo));
 	}
 
 	@Override
-	public void reducirPoder(TipoPersonaje tipoPj, TipoPoder tipoPoder,float energia) {
+	public void reducirPoder(TipoPersonaje tipoPj, TipoPoder tipoPoder,float energia,int id) {
 		//Este if ternario porque si es nacido de la bruma el array energiaPoderes tiene mas indices y varian.
-		energiaPoderes[(tipoPj == TipoPersonaje.NACIDO_BRUMA)?tipoPoder.getNroSeleccion():0] -= (energia/100)*210;
+		//energiaPoderes[(tipoPj == TipoPersonaje.NACIDO_BRUMA)?tipoPoder.getNroSeleccion():0] -= (energia/100)*210;
 	}
 	
 	@Override
-	public void aumentarPoder(TipoPersonaje tipoPj,TipoPoder tipoPoder, float energia) {
-		energiaPoderes[(tipoPj == TipoPersonaje.NACIDO_BRUMA)?tipoPoder.getNroSeleccion():0] += (energia/100)*210;
+	public void aumentarPoder(TipoPersonaje tipoPj,TipoPoder tipoPoder, float energia,int id) {
+		//energiaPoderes[(tipoPj == TipoPersonaje.NACIDO_BRUMA)?tipoPoder.getNroSeleccion():0] += (energia/100)*210;
 	}
 
 	@Override

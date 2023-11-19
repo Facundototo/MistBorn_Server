@@ -34,17 +34,17 @@ public class Listeners {
 		}
 	}
 	
-	public static void reducirPoderPj(TipoPersonaje tipoPj,TipoPoder tipoPoder,float energia) {
+	public static void reducirPoderPj(TipoPersonaje tipoPj,TipoPoder tipoPoder,float energia,int id) {
 		for (EventListener listener : listeners) {
 			if(listener instanceof EventoGestionPoderes)
-				((EventoGestionPoderes)listener).reducirPoder(tipoPj, tipoPoder, energia);
+				((EventoGestionPoderes)listener).reducirPoder(tipoPj, tipoPoder, energia, id);
 		}
 	}
 	
-	public static void aumentarPoderPj(TipoPersonaje tipoPj,TipoPoder tipoPoder,float energia) {
+	public static void aumentarPoderPj(TipoPersonaje tipoPj,TipoPoder tipoPoder,float energia,int id) {
 		for (EventListener listener : listeners) {
 			if(listener instanceof EventoGestionPoderes)
-				((EventoGestionPoderes)listener).aumentarPoder(tipoPj, tipoPoder, energia);
+				((EventoGestionPoderes)listener).aumentarPoder(tipoPj, tipoPoder, energia, id);
 		}
 	}
 	

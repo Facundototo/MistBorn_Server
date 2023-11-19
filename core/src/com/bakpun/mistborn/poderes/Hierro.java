@@ -25,7 +25,7 @@ public class Hierro extends Poder implements Disparable{
 			if(super.pj.getColisionMouse().isColision()) {
 				super.disparo.actualizarDireccion(super.pj.getColisionMouse().getPuntoColision().x,super.pj.getColisionMouse().getPuntoColision().y);
 				super.pj.aplicarFuerza(super.disparo.getMovimientoBala());
-				Listeners.reducirPoderPj(super.pj.getTipo(), super.tipo, 1f);
+				Listeners.reducirPoderPj(super.pj.getTipo(), super.tipo, 1f,super.pj.getId());
 			}
 		}
 	}
