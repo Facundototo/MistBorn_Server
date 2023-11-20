@@ -1,14 +1,12 @@
 package com.bakpun.mistborn.box2d;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.bakpun.mistborn.elementos.Imagen;
 import com.bakpun.mistborn.enums.UserData;
-import com.bakpun.mistborn.eventos.Listeners;
 import com.bakpun.mistborn.utiles.Recursos;
 
 

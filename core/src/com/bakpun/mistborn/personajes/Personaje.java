@@ -17,7 +17,6 @@ import com.bakpun.mistborn.enums.Accion;
 import com.bakpun.mistborn.enums.Movimiento;
 import com.bakpun.mistborn.enums.OpcionAcero;
 import com.bakpun.mistborn.enums.Spawn;
-import com.bakpun.mistborn.enums.TipoAudio;
 import com.bakpun.mistborn.enums.TipoPersonaje;
 import com.bakpun.mistborn.enums.TipoPoder;
 import com.bakpun.mistborn.enums.UserData;
@@ -31,7 +30,6 @@ import com.bakpun.mistborn.poderes.Acero;
 import com.bakpun.mistborn.poderes.Poder;
 import com.bakpun.mistborn.redes.HiloServidor;
 import com.bakpun.mistborn.utiles.Config;
-import com.bakpun.mistborn.utiles.Render;
 
 public abstract class Personaje implements EventoReducirVida,EventoGestionMonedas,EventoEntradasPj,EventoUtilizarPoderes{
 	
@@ -57,8 +55,8 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	private Movimiento mov = Movimiento.QUIETO;
 	private Accion accion;
 	
-	private boolean saltar,puedeMoverse,estaCorriendo,estaQuieto,apuntando,disparando,primerSalto,segundoSalto,caidaSalto,correrDerecha,correrIzquierda;
-	private boolean reproducirSonidoCorrer,flagEmpujar,flagPeltre;
+	private boolean saltar,primerSalto,segundoSalto,caidaSalto;
+	private boolean flagEmpujar,flagPeltre;
 	private float duracionQuieto = 0.2f,duracionCorrer = 0.15f,tiempoMonedas = 0f,tiempoEmpuje = 0f;
 	private int seleccion = 0, id = -1;
 	
@@ -122,12 +120,11 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 			}
 			Listeners.actualizarPosClientes(this.id, this.pj.getPosition());
 			animar();	//Animacion del pj.
-			//aumentarEnergia(delta);	//Aumento de los poderes.
+			aumentarEnergia(delta);	//Aumento de los poderes.
 			quemarPoder();	//Seleccion de poderes. Y demas acciones respecto a los mismos
 		}
 		if(flagEmpujar) {empujarme(delta);}		//Cuando se reduce la vida tambien se genera un impulso para que no sigan pegados los pjs.
 		
-		reproducirSFX();	//Efectos de sonido.
 	}
 	
 	private void calcularGolpe() {
@@ -155,11 +152,6 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	}
 
 	private void quemarPoder() {
-		/*if(tipoPj == TipoPersonaje.NACIDO_BRUMA){		//Si es nacido de la bruma, puede seleccionar los poderes.
-			if(entradas.isPrimerPoder()) {seleccion = 0;}
-			else if(entradas.isSegundoPoder()) {seleccion = 1;}
-			else if(Gdx.input.isKeyJustPressed(Keys.R) || ((Peltre)poderes[2]).isPoderActivo()) {poderes[2].quemar();}
-		}*/
 		if(flagPeltre){aumentarVelocidad();}		
 		else {reducirVelocidad();}
 		// Este if le sirve tanto al nacido de la bruma como a atraedor y lanzamonedas.
@@ -173,7 +165,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 			}
 		}
 		//Si el poder seleccionado es hierro o acero pero con la opcion de empujar, se dibuja el puntero.
-		if((poderes[seleccion].getTipoPoder() == TipoPoder.HIERRO) || (poderes[seleccion].getTipoPoder() == TipoPoder.ACERO && ((Acero)poderes[seleccion]).getOpcion() == OpcionAcero.EMPUJE)) {
+		if((poderes[seleccion].getTipoPoder() == TipoPoder.HIERRO) || (poderes[seleccion].getTipoPoder() == TipoPoder.ACERO /*&& ((Acero)poderes[seleccion]).getOpcion() == OpcionAcero.EMPUJE*/)) {
 			cm.dibujar(pj.getPosition(), posMouse);
 			Listeners.actualizarColisionPj(cm.getPuntoColision().x, cm.getPuntoColision().y, this.id, cm.isColision());
 		}
@@ -181,31 +173,9 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	}
 
 	private void calcularAcciones() {
-		correrDerecha = (entradas.isIrDerD());
-		correrIzquierda = (entradas.isIrIzqA());
-		puedeMoverse = (correrDerecha != correrIzquierda);	//Si el jugador toca las 2 teclas a la vez no va a poder moverse.
-		estaQuieto = ((!correrDerecha == !correrIzquierda) || !puedeMoverse && this.c.isPuedeSaltar(pj));
-		estaCorriendo = ((correrDerecha || correrIzquierda) && puedeMoverse && this.c.isPuedeSaltar(pj));
 		primerSalto = (movimiento.y > impulsoY - 8 && movimiento.y <= impulsoY);
 		segundoSalto = (movimiento.y > 0 && movimiento.y <= impulsoY - 8);
 		caidaSalto = (movimiento.y < 0);
-		apuntando =	(entradas.isBotonDer()); 	//este booleano se utiliza en el metodo drawLineaDisparo().
-		disparando = (entradas.isBotonIzq() && apuntando);	
-	}
-
-	//Metodo que administra los sonidos de los pj.
-	private void reproducirSFX() {
-		if(estaCorriendo) {
-			if(!reproducirSonidoCorrer) {
-				Render.audio.pjCorriendo.play(Render.audio.getVolumen(TipoAudio.SONIDO));
-				reproducirSonidoCorrer = true;
-			}
-		}else {
-			if(reproducirSonidoCorrer) {
-				Render.audio.pjCorriendo.stop();
-				reproducirSonidoCorrer = false;
-			}
-		}
 	}
 
 	private void animar() {
