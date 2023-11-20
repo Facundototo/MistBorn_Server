@@ -1,7 +1,5 @@
 package com.bakpun.mistborn.personajes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -30,11 +28,9 @@ import com.bakpun.mistborn.eventos.EventoUtilizarPoderes;
 import com.bakpun.mistborn.eventos.Listeners;
 import com.bakpun.mistborn.io.Entradas;
 import com.bakpun.mistborn.poderes.Acero;
-import com.bakpun.mistborn.poderes.Peltre;
 import com.bakpun.mistborn.poderes.Poder;
 import com.bakpun.mistborn.redes.HiloServidor;
 import com.bakpun.mistborn.utiles.Config;
-import com.bakpun.mistborn.utiles.Recursos;
 import com.bakpun.mistborn.utiles.Render;
 
 public abstract class Personaje implements EventoReducirVida,EventoGestionMonedas,EventoEntradasPj,EventoUtilizarPoderes{
@@ -119,8 +115,11 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		pj.setLinearVelocity(movimiento);	//Aplico al pj velocidad lineal, tanto para correr como para saltar.
 		spr.setPosicion(pj.getPosition().x, pj.getPosition().y);	//Le digo al Sprite que se ponga en la posicion del body.
 		
-		if(HiloServidor.clientesEncontrados) {
-			if(this.vida <= 0) {Listeners.terminarPelea((this.id == 0)?1:0);}
+		/*Todo esto va a suceder mientras los clientes no se desconecten, porque a la milesima el sv se crashea porque esta mandando siempre eventos a los clientes*/
+		if(HiloServidor.clientesEncontrados) {		
+			if(this.vida <= 0) {
+				Listeners.terminarPelea((this.id == 0)?1:0);
+			}
 			Listeners.actualizarPosClientes(this.id, this.pj.getPosition());
 			animar();	//Animacion del pj.
 			//aumentarEnergia(delta);	//Aumento de los poderes.
@@ -182,7 +181,6 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	}
 
 	private void calcularAcciones() {
-		//RECORDATORIO: Esto de ladoDerecho y de cambiarle las teclas es para probar las colisiones sin utilizar redes.	
 		correrDerecha = (entradas.isIrDerD());
 		correrIzquierda = (entradas.isIrIzqA());
 		puedeMoverse = (correrDerecha != correrIzquierda);	//Si el jugador toca las 2 teclas a la vez no va a poder moverse.
@@ -282,7 +280,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 			movimiento.x = -velocidadX;
 		}else if(mov == Movimiento.QUIETO){//Esto para que no se quede deslizando.
 			movimiento.x = 0;
-		}		
+		}	
 	}
 	public float getX() {
 		return this.pj.getPosition().x;
@@ -332,7 +330,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 		if(this.id == id) {		//Se chequea el id del pj.
 			if((movimiento == Movimiento.SALTO) && (c.isPuedeSaltar(pj))) {	//Si es Salto y esta en el piso se activa la flag saltar.
 				saltar = true;
-			}else {
+			}else{
 				this.mov = movimiento;
 			}
 		}
