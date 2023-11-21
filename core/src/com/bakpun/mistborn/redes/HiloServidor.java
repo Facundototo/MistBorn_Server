@@ -63,8 +63,7 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 
 
 	private void procesarMensaje(DatagramPacket dp) {
-		String msg[] = new String(dp.getData()).trim().split("#");	//Transformo el dato del paquete a String y se quitan los espacios con trim().
-		//System.out.println(msg[0]);	
+		String msg[] = new String(dp.getData()).trim().split("#");	//Transformo el dato del paquete a String y se quitan los espacios con trim().	
 		
 		switch(msg[0]) { 
 		case "conexion":
@@ -73,8 +72,7 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 				enviarMensaje("OK#" + cantConexiones++ ,dp.getAddress(),dp.getPort());				//Envia al cliente nuevo OK para que este almacene la ip del server.
 				if(cantConexiones == clientes.length) {	//Si ya hay 2 clientes encontrados se le envia a los 2 OponenteListo.
 					clientesEncontrados = true;			//Este booleano sirve solo para cambiar el texto de la pantalla del Server.	
-					enviarMensaje("OponenteEncontrado", clientes[0].getIpCliente(), clientes[0].getPuerto());	
-					enviarMensaje("OponenteEncontrado", clientes[1].getIpCliente(), clientes[1].getPuerto());			
+					enviarMsgClientes("OponenteEncontrado");			
 				}
 			}
 			break;
@@ -87,8 +85,7 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 			clientes[Integer.valueOf(msg[1])].setListo(true);
 			if(clientes[0].getListo() && clientes[1].getListo()) {	//Si los 2 clientes estan listos se envia un mensaje para que empiecen la partida.
 				clientesListos = true;
-				enviarMensaje("EmpiezaPartida", clientes[0].getIpCliente(), clientes[0].getPuerto());
-				enviarMensaje("EmpiezaPartida", clientes[1].getIpCliente(), clientes[1].getPuerto());
+				enviarMsgClientes("EmpiezaPartida");
 			}
 			break;
 			
@@ -146,13 +143,18 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 	}
 
 
+	private void enviarMsgClientes(String msg) {
+		enviarMensaje(msg, clientes[0].getIpCliente(), clientes[0].getPuerto());	
+		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());
+	}
+
+
 	public void desconectar() {
 		if(cantConexiones == 1) {	//Caso de PantallaEspera, si la cantConexion es 1 se desconecta solo el cliente[0], ya que cliente[1] no existe porque todavia no lo encontro.
 			enviarMensaje("desconexion", clientes[0].getIpCliente(), clientes[0].getPuerto());
 			clientes[0] = null;
 		}else if (cantConexiones == 2){	//Caso PantallaSeleccion, estan los 2 conectados, si uno se desconecta, el otro tambien porque no tiene oponente,tiene que buscar de nuevo.
-			enviarMensaje("desconexion", clientes[0].getIpCliente(), clientes[0].getPuerto());
-			enviarMensaje("desconexion", clientes[1].getIpCliente(), clientes[1].getPuerto());
+			enviarMsgClientes("desconexion");
 			clientes[0] = null;		
 			clientes[1] = null;
 		}
@@ -165,22 +167,19 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 	@Override
 	public void actualizarPosClientes(int id, Vector2 coor) {
 		String msg = "posPj#" + String.valueOf(id) + "#" + String.valueOf(coor.x) + "#" + String.valueOf(coor.y);
-		enviarMensaje(msg, clientes[0].getIpCliente(), clientes[0].getPuerto());
-		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());	
+		enviarMsgClientes(msg);	
 	}
 
 	@Override
 	public void actualizarAnimaClientes(int id, int frameIndex,Movimiento mov,boolean saltando) {
 		String msg = "animaPj#" + String.valueOf(id) + "#" + String.valueOf(frameIndex) + "#" + mov.getMovimiento() + "#" + String.valueOf(saltando);
-		enviarMensaje(msg, clientes[0].getIpCliente(), clientes[0].getPuerto());
-		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());
+		enviarMsgClientes(msg);
 	}
 
 	@Override
 	public void reducirVida(float dano, int idOponente) {
 		String msg = "reducir_vida#" + String.valueOf(idOponente) + "#" + String.valueOf(dano);
-		enviarMensaje(msg, clientes[0].getIpCliente(), clientes[0].getPuerto());
-		enviarMensaje(msg, clientes[1].getIpCliente(), clientes[1].getPuerto());
+		enviarMsgClientes(msg);
 	}
 
 	@Override

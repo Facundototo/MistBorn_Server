@@ -15,11 +15,8 @@ public class MistBorn extends Game {
 	public void create() {
 		hs = new HiloServidor();
 		hs.start();
-		//Render.audio = new Audio();
 		Render.app = this;			//Asigno a app esta clase para hacer el metodo setScreen() en otras pantallas.
 		Render.batch = new SpriteBatch();	//SpriteBatch unico.
-		//Render.audio.cancionMenu.play();
-		//Render.audio.cancionMenu.setLooping(true);
 		Gdx.graphics.setWindowedMode(Config.ANCHO/3,Config.ALTO/2);
 		this.setScreen(new PantallaEspera());
 		
@@ -32,7 +29,6 @@ public class MistBorn extends Game {
 	public void dispose () {
 		hs.desconectar();
 		Render.batch.dispose();		//SpriteBatch.
-		//Render.audio.dispose();
 		super.dispose();
 	}
 }
