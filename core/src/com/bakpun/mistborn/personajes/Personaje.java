@@ -15,7 +15,6 @@ import com.bakpun.mistborn.elementos.Animacion;
 import com.bakpun.mistborn.elementos.Imagen;
 import com.bakpun.mistborn.enums.Accion;
 import com.bakpun.mistborn.enums.Movimiento;
-import com.bakpun.mistborn.enums.OpcionAcero;
 import com.bakpun.mistborn.enums.Spawn;
 import com.bakpun.mistborn.enums.TipoPersonaje;
 import com.bakpun.mistborn.enums.TipoPoder;
@@ -129,7 +128,7 @@ public abstract class Personaje implements EventoReducirVida,EventoGestionMoneda
 	
 	private void calcularGolpe() {
 		if(c.isPjsChocando() && accion == Accion.GOLPE) {		//Si estan juntos y uno toca click se reduce la vida del oponente.
-			Listeners.reducirVidaPj(20, ((this.id == 0)?1:0));
+			Listeners.reducirVidaPj(10, ((this.id == 0)?1:0));
 		}
 	}
 

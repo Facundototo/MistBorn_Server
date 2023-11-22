@@ -60,7 +60,11 @@ public class HiloServidor extends Thread implements EventoInformacionPj,EventoRe
 		}while(!fin);
 		
 	}
-
+	
+	public void fin() {
+		fin = true;
+		socket.close();
+	}
 
 	private void procesarMensaje(DatagramPacket dp) {
 		String msg[] = new String(dp.getData()).trim().split("#");	//Transformo el dato del paquete a String y se quitan los espacios con trim().	

@@ -28,6 +28,7 @@ public class MistBorn extends Game {
 	
 	public void dispose () {
 		hs.desconectar();
+		hs.fin();
 		Render.batch.dispose();		//SpriteBatch.
 		super.dispose();
 	}
